@@ -43,6 +43,20 @@ final class DatasetViewModel: ObservableObject {
         return "\(items.count) images, \(missing) missing captions"
     }
 
+    var reviewSummary: String {
+        guard !items.isEmpty else { return "No review progress" }
+        return "\(reviewedCount) of \(items.count) reviewed"
+    }
+
+    var reviewProgress: Double {
+        guard !items.isEmpty else { return 0 }
+        return Double(reviewedCount) / Double(items.count)
+    }
+
+    private var reviewedCount: Int {
+        items.filter(\.isReviewed).count
+    }
+
     func batchPreview(scope: BatchCaptionScope, operation: BatchCaptionOperation) -> BatchCaptionPreview {
         BatchCaptionEdit.preview(items: batchItems(for: scope), operation: operation)
     }
@@ -103,6 +117,49 @@ final class DatasetViewModel: ObservableObject {
         select(offset: -1)
     }
 
+    func selectNextMissingCaption() {
+        selectNextItem(matching: \.isMissingCaption, noneMessage: "No other missing captions.")
+    }
+
+    func selectNextUnreviewed() {
+        selectNextItem(matching: { !$0.isReviewed }, noneMessage: "No other unreviewed images.")
+    }
+
+    func markSelectedReviewed(_ isReviewed: Bool = true) {
+        guard let selectedID, let index = items.firstIndex(where: { $0.id == selectedID }) else { return }
+        items[index].isReviewed = isReviewed
+        statusMessage = isReviewed
+            ? "Marked \(items[index].filename) reviewed."
+            : "Marked \(items[index].filename) unreviewed."
+    }
+
+    func toggleSelectedReviewed() {
+        guard let selectedItem else { return }
+        markSelectedReviewed(!selectedItem.isReviewed)
+    }
+
+    func copyPreviousCaptionToSelected() {
+        guard let selectedID, let selectedIndex = items.firstIndex(where: { $0.id == selectedID }) else { return }
+        let visible = filteredItems
+        guard
+            let visibleIndex = visible.firstIndex(where: { $0.id == selectedID }),
+            visibleIndex > visible.startIndex
+        else {
+            statusMessage = "No previous visible caption to copy."
+            return
+        }
+
+        let previousCaption = visible[visible.index(before: visibleIndex)].caption
+        updateCaption(for: selectedID, caption: previousCaption)
+        statusMessage = "Copied previous caption to \(items[selectedIndex].filename)."
+    }
+
+    func clearSelectedCaption() {
+        guard let selectedID, let index = items.firstIndex(where: { $0.id == selectedID }) else { return }
+        updateCaption(for: selectedID, caption: "")
+        statusMessage = "Cleared caption for \(items[index].filename)."
+    }
+
     func flushSelectedCaption() {
         guard let selectedID else { return }
         saveCaption(for: selectedID)
@@ -150,6 +207,34 @@ final class DatasetViewModel: ObservableObject {
         } else {
             select(visible.first?.id)
         }
+    }
+
+    private func selectNextItem(
+        matching predicate: (DatasetItem) -> Bool,
+        noneMessage: String
+    ) {
+        guard !items.isEmpty else { return }
+
+        let startIndex = selectedID.flatMap { selectedID in
+            items.firstIndex { $0.id == selectedID }
+        }
+        let searchOffsets: Range<Int>
+
+        if startIndex == nil {
+            searchOffsets = 0..<items.count
+        } else {
+            searchOffsets = 1..<items.count
+        }
+
+        for offset in searchOffsets {
+            let index = ((startIndex ?? 0) + offset) % items.count
+            guard predicate(items[index]) else { continue }
+            select(items[index].id)
+            statusMessage = "Selected \(items[index].filename)."
+            return
+        }
+
+        statusMessage = noneMessage
     }
 
     private func scheduleAutosave(for itemID: DatasetItem.ID) {

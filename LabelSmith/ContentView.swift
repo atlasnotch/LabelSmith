@@ -126,6 +126,13 @@ private struct SidebarView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
+                Text(dataset.reviewSummary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                ProgressView(value: dataset.reviewProgress)
+                    .controlSize(.small)
+
                 if dataset.orphanCaptionCount > 0 {
                     Text("\(dataset.orphanCaptionCount) orphan captions ignored")
                         .font(.caption)
@@ -161,7 +168,10 @@ private struct DatasetRow: View {
 
             Spacer(minLength: 8)
 
-            SaveStateIcon(state: item.saveState, isMissing: item.isMissingCaption)
+            HStack(spacing: 6) {
+                ReviewStateIcon(isReviewed: item.isReviewed)
+                SaveStateIcon(state: item.saveState, isMissing: item.isMissingCaption)
+            }
         }
         .padding(.vertical, 4)
     }
@@ -212,6 +222,36 @@ private struct CaptionEditor: View {
                     .lineLimit(1)
 
                 Spacer()
+
+                HStack(spacing: 6) {
+                    Button {
+                        dataset.copyPreviousCaptionToSelected()
+                    } label: {
+                        Label("Copy Previous Caption", systemImage: "doc.on.doc")
+                            .labelStyle(.iconOnly)
+                    }
+                    .help("Copy Previous Caption")
+
+                    Button {
+                        dataset.clearSelectedCaption()
+                    } label: {
+                        Label("Clear Caption", systemImage: "xmark.circle")
+                            .labelStyle(.iconOnly)
+                    }
+                    .help("Clear Caption")
+
+                    Button {
+                        dataset.toggleSelectedReviewed()
+                    } label: {
+                        Label(
+                            item.isReviewed ? "Mark Unreviewed" : "Mark Reviewed",
+                            systemImage: item.isReviewed ? "checkmark.seal.fill" : "checkmark.seal"
+                        )
+                        .labelStyle(.iconOnly)
+                    }
+                    .help(item.isReviewed ? "Mark Unreviewed" : "Mark Reviewed")
+                }
+                .buttonStyle(.borderless)
 
                 SaveStateLabel(state: item.saveState)
             }
@@ -515,6 +555,17 @@ private struct ThumbnailView: View {
         .task(id: url) {
             image = NSImage(contentsOf: url)
         }
+    }
+}
+
+private struct ReviewStateIcon: View {
+    let isReviewed: Bool
+
+    var body: some View {
+        Image(systemName: isReviewed ? "checkmark.seal.fill" : "circle")
+            .foregroundStyle(isReviewed ? AnyShapeStyle(.blue) : AnyShapeStyle(.tertiary))
+            .frame(width: 18, height: 18)
+            .help(isReviewed ? "Reviewed" : "Unreviewed")
     }
 }
 

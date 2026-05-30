@@ -16,6 +16,7 @@ struct DatasetItem: Identifiable, Hashable {
     var caption: String
     var originalCaption: String
     var saveState: SaveState
+    var isReviewed = false
 
     var isMissingCaption: Bool {
         caption.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
