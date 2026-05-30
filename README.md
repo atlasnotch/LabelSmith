@@ -95,9 +95,33 @@ such as `.webp`, `.gif`, and `.tiff`.
 
 ## Requirements
 
-- macOS 14 or newer.
+- macOS 14 or newer to run the app.
 - Xcode 26 or newer for local development.
-- Swift 6 toolchain.
+- Swift 6 toolchain for local development.
+
+## Download and Install
+
+Most users should install LabelSmith from the GitHub Releases page instead of
+building it from source:
+
+1. Open the
+   [LabelSmith releases page](https://github.com/atlasnotch/LabelSmith-MacOS/releases).
+2. Choose the latest release at the top of the page.
+3. Read the release notes for version-specific changes, fixes, and known issues.
+4. In the release's Assets section, download the packaged app build, such as a
+   `.dmg` or `.zip` containing `LabelSmith.app`.
+5. If you downloaded a `.zip`, unzip it. If you downloaded a `.dmg`, open it.
+6. Move `LabelSmith.app` to your `Applications` folder.
+7. Launch LabelSmith from `Applications`.
+
+The `Source code` archives attached to GitHub releases are for developers who want
+to inspect or build the project themselves. To run the app, download the packaged
+app asset from the release's Assets section.
+
+If macOS blocks the app because the release is unsigned or from an unidentified
+developer, open System Settings > Privacy & Security and choose the option to open
+LabelSmith anyway. You can also Control-click `LabelSmith.app`, choose Open, and
+confirm the prompt.
 
 ## Build and Run
 
