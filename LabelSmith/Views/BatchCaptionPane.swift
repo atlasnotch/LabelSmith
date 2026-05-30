@@ -118,9 +118,6 @@ struct BatchCaptionPane: View {
             .padding(14)
         }
         .background(Color(nsColor: .controlBackgroundColor))
-        .overlay(alignment: .leading) {
-            Divider()
-        }
     }
 }
 
