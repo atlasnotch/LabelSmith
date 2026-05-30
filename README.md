@@ -1,5 +1,7 @@
 # LabelSmith for macOS
 
+[![CodeQL Advanced](https://github.com/atlasnotch/LabelSmith-MacOS/actions/workflows/codeql.yml/badge.svg)](https://github.com/atlasnotch/LabelSmith-MacOS/actions/workflows/codeql.yml)
+
 LabelSmith is a native macOS app for quickly reviewing and editing image captions in
 Ostris AI Toolkit-style datasets.
 
