@@ -20,6 +20,7 @@
 		111111111111111111111111 /* BatchCaptionEdit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111009 /* BatchCaptionEdit.swift */; };
 		111111111111111111111112 /* BatchCaptionEditTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111023 /* BatchCaptionEditTests.swift */; };
 		111111111111111111111113 /* DatasetViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111024 /* DatasetViewModelTests.swift */; };
+		111111111111111111111114 /* WorkspaceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111010 /* WorkspaceStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 		111111111111111111111007 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		111111111111111111111008 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		111111111111111111111009 /* BatchCaptionEdit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchCaptionEdit.swift; sourceTree = "<group>"; };
+		111111111111111111111010 /* WorkspaceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceStore.swift; sourceTree = "<group>"; };
 		111111111111111111111011 /* LabelSmith.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LabelSmith.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		111111111111111111111012 /* LabelSmithTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LabelSmithTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		111111111111111111111021 /* DatasetScannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetScannerTests.swift; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 				111111111111111111111002 /* ContentView.swift */,
 				111111111111111111111006 /* DatasetViewModel.swift */,
 				111111111111111111111009 /* BatchCaptionEdit.swift */,
+				111111111111111111111010 /* WorkspaceStore.swift */,
 				111111111111111111111003 /* DatasetItem.swift */,
 				111111111111111111111004 /* DatasetScanner.swift */,
 				111111111111111111111005 /* CaptionStore.swift */,
@@ -231,6 +234,7 @@
 				111111111111111111111106 /* DatasetViewModel.swift in Sources */,
 				111111111111111111111103 /* DatasetItem.swift in Sources */,
 				111111111111111111111111 /* BatchCaptionEdit.swift in Sources */,
+				111111111111111111111114 /* WorkspaceStore.swift in Sources */,
 				111111111111111111111104 /* DatasetScanner.swift in Sources */,
 				111111111111111111111105 /* CaptionStore.swift in Sources */,
 			);

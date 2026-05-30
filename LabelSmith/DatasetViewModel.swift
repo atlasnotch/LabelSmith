@@ -6,20 +6,40 @@ import SwiftUI
 final class DatasetViewModel: ObservableObject {
     @Published private(set) var folderURL: URL?
     @Published private(set) var items: [DatasetItem] = []
-    @Published var selectedID: DatasetItem.ID?
-    @Published var searchText = ""
-    @Published var showMissingOnly = false
+    @Published var selectedID: DatasetItem.ID? {
+        didSet { saveCurrentWorkspaceState() }
+    }
+    @Published var searchText = "" {
+        didSet { saveCurrentWorkspaceState() }
+    }
+    @Published var showMissingOnly = false {
+        didSet { saveCurrentWorkspaceState() }
+    }
     @Published private(set) var orphanCaptionCount = 0
     @Published private(set) var statusMessage = "Drop an Ostris image folder to begin."
     @Published var isDropTargeted = false
+    @Published private(set) var managedFolders: [ManagedFolder] = []
 
     private let scanner: DatasetScanner
     private let captionStore: CaptionStore
+    private let workspaceStore: WorkspaceStore
     private var autosaveTask: Task<Void, Never>?
+    private var workspaceSnapshot: WorkspaceSnapshot
+    private var didAttemptInitialRestore = false
+    private var isApplyingWorkspaceState = false
+    private static let maximumRecentFolderCount = 12
 
-    init(scanner: DatasetScanner = DatasetScanner(), captionStore: CaptionStore = CaptionStore()) {
+    init(
+        scanner: DatasetScanner = DatasetScanner(),
+        captionStore: CaptionStore = CaptionStore(),
+        workspaceStore: WorkspaceStore = WorkspaceStore()
+    ) {
         self.scanner = scanner
         self.captionStore = captionStore
+        self.workspaceStore = workspaceStore
+        let snapshot = workspaceStore.load()
+        self.workspaceSnapshot = snapshot
+        self.managedFolders = Self.sortedManagedFolders(snapshot.managedFolders)
     }
 
     var selectedItem: DatasetItem? {
@@ -61,6 +81,21 @@ final class DatasetViewModel: ObservableObject {
         BatchCaptionEdit.preview(items: batchItems(for: scope), operation: operation)
     }
 
+    func restoreLastOpenedFolderIfNeeded() {
+        guard !didAttemptInitialRestore else { return }
+        didAttemptInitialRestore = true
+
+        guard let path = workspaceSnapshot.lastFolderPath else { return }
+        let url = URL(fileURLWithPath: path, isDirectory: true)
+
+        guard folderExists(at: url) else {
+            statusMessage = "Last folder unavailable: \(url.lastPathComponent)."
+            return
+        }
+
+        loadFolder(url)
+    }
+
     func presentOpenPanel() {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
@@ -76,6 +111,7 @@ final class DatasetViewModel: ObservableObject {
     }
 
     func loadFolder(_ url: URL) {
+        saveCurrentWorkspaceState()
         flushSelectedCaption()
         autosaveTask?.cancel()
 
@@ -84,7 +120,8 @@ final class DatasetViewModel: ObservableObject {
             folderURL = result.folderURL
             items = result.items
             orphanCaptionCount = result.orphanCaptionCount
-            selectedID = result.items.first?.id
+            applyWorkspaceState(for: result.folderURL.path)
+            trackOpenedFolder(result.folderURL)
             statusMessage = result.items.isEmpty
                 ? "No .jpg, .jpeg, or .png images found in \(url.lastPathComponent)."
                 : "Loaded \(result.items.count) images from \(url.lastPathComponent)."
@@ -95,6 +132,32 @@ final class DatasetViewModel: ObservableObject {
             orphanCaptionCount = 0
             statusMessage = "Could not load folder: \(error.localizedDescription)"
         }
+    }
+
+    func openManagedFolder(_ folder: ManagedFolder) {
+        guard folder.isAvailable else {
+            statusMessage = "Folder unavailable: \(folder.displayName)."
+            return
+        }
+
+        loadFolder(folder.url)
+    }
+
+    func togglePinned(_ folder: ManagedFolder) {
+        guard let index = workspaceSnapshot.managedFolders.firstIndex(where: { $0.id == folder.id }) else { return }
+        workspaceSnapshot.managedFolders[index].isPinned.toggle()
+        persistWorkspaceSnapshot()
+    }
+
+    func removeManagedFolder(_ folder: ManagedFolder) {
+        workspaceSnapshot.managedFolders.removeAll { $0.id == folder.id }
+        workspaceSnapshot.folderStates.removeValue(forKey: folder.path)
+
+        if workspaceSnapshot.lastFolderPath == folder.path {
+            workspaceSnapshot.lastFolderPath = nil
+        }
+
+        persistWorkspaceSnapshot()
     }
 
     func updateCaption(for itemID: DatasetItem.ID, caption: String) {
@@ -128,6 +191,7 @@ final class DatasetViewModel: ObservableObject {
     func markSelectedReviewed(_ isReviewed: Bool = true) {
         guard let selectedID, let index = items.firstIndex(where: { $0.id == selectedID }) else { return }
         items[index].isReviewed = isReviewed
+        saveCurrentWorkspaceState()
         statusMessage = isReviewed
             ? "Marked \(items[index].filename) reviewed."
             : "Marked \(items[index].filename) unreviewed."
@@ -195,6 +259,67 @@ final class DatasetViewModel: ObservableObject {
         } else {
             statusMessage = "Saved \(savedCount) batch caption edits."
         }
+    }
+
+    private func saveCurrentWorkspaceState() {
+        guard !isApplyingWorkspaceState else { return }
+        guard let folderURL else { return }
+
+        workspaceSnapshot.folderStates[folderURL.path] = FolderUIState(
+            selectedItemID: selectedID,
+            searchText: searchText,
+            showMissingOnly: showMissingOnly,
+            reviewedItemIDs: Set(items.filter(\.isReviewed).map(\.id))
+        )
+        persistWorkspaceSnapshot()
+    }
+
+    private func applyWorkspaceState(for folderPath: String) {
+        isApplyingWorkspaceState = true
+        defer { isApplyingWorkspaceState = false }
+
+        let state = workspaceSnapshot.folderStates[folderPath] ?? .empty
+        searchText = state.searchText
+        showMissingOnly = state.showMissingOnly
+
+        for index in items.indices {
+            items[index].isReviewed = state.reviewedItemIDs.contains(items[index].id)
+        }
+
+        if let selectedItemID = state.selectedItemID, items.contains(where: { $0.id == selectedItemID }) {
+            selectedID = selectedItemID
+        } else {
+            selectedID = items.first?.id
+        }
+    }
+
+    private func trackOpenedFolder(_ url: URL) {
+        let path = url.path
+
+        if let index = workspaceSnapshot.managedFolders.firstIndex(where: { $0.path == path }) {
+            workspaceSnapshot.managedFolders[index].lastOpenedAt = Date()
+        } else {
+            workspaceSnapshot.managedFolders.append(ManagedFolder(
+                path: path,
+                isPinned: false,
+                lastOpenedAt: Date()
+            ))
+        }
+
+        workspaceSnapshot.lastFolderPath = path
+        persistWorkspaceSnapshot()
+    }
+
+    private func persistWorkspaceSnapshot() {
+        workspaceSnapshot.managedFolders = Self.sortedManagedFolders(workspaceSnapshot.managedFolders)
+        managedFolders = workspaceSnapshot.managedFolders
+        workspaceStore.save(workspaceSnapshot)
+    }
+
+    private func folderExists(at url: URL) -> Bool {
+        var isDirectory: ObjCBool = false
+        return FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory)
+            && isDirectory.boolValue
     }
 
     private func select(offset: Int) {
@@ -271,5 +396,19 @@ final class DatasetViewModel: ObservableObject {
         case .all:
             items
         }
+    }
+
+    private static func sortedManagedFolders(_ folders: [ManagedFolder]) -> [ManagedFolder] {
+        let sorted = folders.sorted { lhs, rhs in
+            if lhs.isPinned != rhs.isPinned {
+                return lhs.isPinned && !rhs.isPinned
+            }
+
+            return lhs.lastOpenedAt > rhs.lastOpenedAt
+        }
+
+        let pinned = sorted.filter(\.isPinned)
+        let recent = sorted.filter { !$0.isPinned }.prefix(maximumRecentFolderCount)
+        return pinned + recent
     }
 }

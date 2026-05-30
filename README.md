@@ -23,17 +23,12 @@ caption, and let LabelSmith save the matching `.txt` sidecar file for you.
   tag normalization, and live preview before saving.
 - Review workflow with reviewed/unreviewed state, progress summary, next-missing and
   next-unreviewed navigation, and quick caption actions.
+- Persistent workspace with launch restore, recent and pinned folders, per-folder UI
+  state, and clear unavailable-folder handling.
 - Autosaves caption edits to sidecar `.txt` files.
-- Unit-tested scanner, caption persistence, and batch edit logic.
+- Unit-tested scanner, caption persistence, batch edit logic, and workspace state.
 
 ## Roadmap / TODOs
-
-- Persistent workspace and folder management:
-  - Remember the last opened folder and restore it when the app launches.
-  - Support multiple recent or pinned dataset folders.
-  - Let users switch between managed folders without reopening them through Finder.
-  - Preserve per-folder UI state such as selected image, search text, filters, and review progress.
-  - Clearly handle missing, moved, or unavailable folders on launch.
 
 - Undo/history/backups:
   - Add per-caption undo for recent edits.
