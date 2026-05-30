@@ -2,6 +2,7 @@ import AppKit
 import Foundation
 
 struct FolderOpening {
+    @MainActor
     func chooseFolder() -> URL? {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false

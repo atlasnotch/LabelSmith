@@ -183,11 +183,9 @@ private struct BatchCaptionOperationControls: View {
                 }
             case .normalizeTags:
                 HStack(spacing: 12) {
-                    Toggle("Trim whitespace", isOn: .constant(true))
-                        .disabled(true)
+                    Toggle("Trim whitespace", isOn: $operation.trimsTagWhitespace)
 
-                    Toggle("Remove duplicates", isOn: .constant(true))
-                        .disabled(true)
+                    Toggle("Remove duplicates", isOn: $operation.removesDuplicateTags)
 
                     Toggle("Sort alphabetically", isOn: $operation.sortsTags)
 

@@ -60,6 +60,8 @@ struct BatchCaptionOperation: Equatable {
     var prefix = ""
     var suffix = ""
     var triggerWords = ""
+    var trimsTagWhitespace = true
+    var removesDuplicateTags = true
     var sortsTags = false
 
     var isReady: Bool {
@@ -69,7 +71,7 @@ struct BatchCaptionOperation: Equatable {
         case .addRemove:
             !prefix.isEmpty || !suffix.isEmpty || !parsedTriggerWords.isEmpty
         case .normalizeTags:
-            true
+            trimsTagWhitespace || removesDuplicateTags || sortsTags
         }
     }
 
@@ -90,7 +92,12 @@ struct BatchCaptionOperation: Equatable {
         case .addRemove:
             return transformAffixes(caption)
         case .normalizeTags:
-            return Self.normalizedTags(caption, sorted: sortsTags)
+            return Self.normalizedTags(
+                caption,
+                trimsWhitespace: trimsTagWhitespace,
+                removesDuplicates: removesDuplicateTags,
+                sorted: sortsTags
+            )
         }
     }
 
@@ -148,28 +155,54 @@ struct BatchCaptionOperation: Equatable {
             .joined(separator: ", ")
     }
 
-    private static func normalizedTags(_ caption: String, sorted: Bool) -> String {
-        var normalized: [String] = []
-        var seen = Set<String>()
+    private static func normalizedTags(
+        _ caption: String,
+        trimsWhitespace: Bool,
+        removesDuplicates: Bool,
+        sorted: Bool
+    ) -> String {
+        let tags = parseTags(caption, trimsWhitespace: trimsWhitespace)
+        var normalized = [String]()
 
-        for tag in parseTags(caption) {
-            let key = tag.lowercased()
-            guard !seen.contains(key) else { continue }
-            normalized.append(tag)
-            seen.insert(key)
+        if removesDuplicates {
+            var seen = Set<String>()
+
+            for tag in tags {
+                let key = duplicateKey(for: tag)
+                guard !seen.contains(key) else { continue }
+                normalized.append(tag)
+                seen.insert(key)
+            }
+        } else {
+            normalized = tags
         }
 
         if sorted {
-            normalized.sort { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+            normalized.sort {
+                sortKey(for: $0).localizedCaseInsensitiveCompare(sortKey(for: $1)) == .orderedAscending
+            }
         }
 
         return normalized.joined(separator: ", ")
     }
 
-    private static func parseTags(_ text: String) -> [String] {
+    private static func parseTags(_ text: String, trimsWhitespace: Bool = true) -> [String] {
         text.split(separator: ",", omittingEmptySubsequences: true)
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
+            .map { tag in
+                let rawTag = String(tag)
+                return trimsWhitespace
+                    ? rawTag.trimmingCharacters(in: .whitespacesAndNewlines)
+                    : rawTag
+            }
+            .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    }
+
+    private static func duplicateKey(for tag: String) -> String {
+        tag.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
+
+    private static func sortKey(for tag: String) -> String {
+        tag.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 

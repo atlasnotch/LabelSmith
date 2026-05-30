@@ -71,6 +71,45 @@ final class BatchCaptionEditTests: XCTestCase {
         XCTAssertEqual(preview.changes[0].newCaption, "apple, Cat, zebra")
     }
 
+    func testNormalizeTagsCanKeepDuplicates() {
+        var operation = BatchCaptionOperation()
+        operation.kind = .normalizeTags
+        operation.removesDuplicateTags = false
+
+        let preview = BatchCaptionEdit.preview(items: [
+            item(filename: "sample.jpg", caption: "dog, cat, DOG")
+        ], operation: operation)
+
+        XCTAssertEqual(preview.changes, [])
+    }
+
+    func testNormalizeTagsCanPreserveWhitespace() {
+        var operation = BatchCaptionOperation()
+        operation.kind = .normalizeTags
+        operation.trimsTagWhitespace = false
+
+        let preview = BatchCaptionEdit.preview(items: [
+            item(filename: "sample.jpg", caption: " dog,cat ")
+        ], operation: operation)
+
+        XCTAssertEqual(preview.changes[0].newCaption, " dog, cat ")
+    }
+
+    func testNormalizeTagsIsNotReadyWhenEveryOptionIsDisabled() {
+        var operation = BatchCaptionOperation()
+        operation.kind = .normalizeTags
+        operation.trimsTagWhitespace = false
+        operation.removesDuplicateTags = false
+        operation.sortsTags = false
+
+        let preview = BatchCaptionEdit.preview(items: [
+            item(filename: "sample.jpg", caption: " dog, dog")
+        ], operation: operation)
+
+        XCTAssertFalse(operation.isReady)
+        XCTAssertEqual(preview.changes, [])
+    }
+
     private func item(filename: String, caption: String) -> DatasetItem {
         let imageURL = URL(fileURLWithPath: "/tmp/\(filename)")
         return DatasetItem(
