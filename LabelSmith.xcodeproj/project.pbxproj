@@ -16,6 +16,7 @@
 		111111111111111111111107 /* LabelSmith.app in Embed App */ = {isa = PBXBuildFile; fileRef = 111111111111111111111011 /* LabelSmith.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		111111111111111111111108 /* DatasetScannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111021 /* DatasetScannerTests.swift */; };
 		111111111111111111111109 /* CaptionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111022 /* CaptionStoreTests.swift */; };
+		111111111111111111111110 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111008 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +51,7 @@
 		111111111111111111111005 /* CaptionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionStore.swift; sourceTree = "<group>"; };
 		111111111111111111111006 /* DatasetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetViewModel.swift; sourceTree = "<group>"; };
 		111111111111111111111007 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		111111111111111111111008 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		111111111111111111111011 /* LabelSmith.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LabelSmith.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		111111111111111111111012 /* LabelSmithTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LabelSmithTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		111111111111111111111021 /* DatasetScannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetScannerTests.swift; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 				111111111111111111111003 /* DatasetItem.swift */,
 				111111111111111111111004 /* DatasetScanner.swift */,
 				111111111111111111111005 /* CaptionStore.swift */,
+				111111111111111111111008 /* Assets.xcassets */,
 				111111111111111111111007 /* Info.plist */,
 			);
 			path = LabelSmith;
@@ -196,6 +199,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				111111111111111111111110 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -363,6 +367,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -389,6 +394,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
