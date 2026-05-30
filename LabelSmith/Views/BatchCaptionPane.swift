@@ -36,7 +36,9 @@ struct BatchCaptionPane: View {
                                 Text(scope.label).tag(scope)
                             }
                         }
-                        .pickerStyle(.segmented)
+                        .pickerStyle(.menu)
+                        .labelsHidden()
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
                     VStack(alignment: .leading, spacing: 8) {
@@ -49,7 +51,9 @@ struct BatchCaptionPane: View {
                                 Text(kind.label).tag(kind)
                             }
                         }
-                        .pickerStyle(.segmented)
+                        .pickerStyle(.menu)
+                        .labelsHidden()
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
                     BatchCaptionOperationControls(operation: $operation)
@@ -127,31 +131,22 @@ private struct BatchCaptionOperationControls: View {
         Group {
             switch operation.kind {
             case .findReplace:
-                Grid(alignment: .leading, horizontalSpacing: 10, verticalSpacing: 10) {
-                    GridRow {
-                        Text("Find")
-                            .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 10) {
+                    BatchControlField("Find") {
                         TextField("Text to find", text: $operation.findText)
                             .textFieldStyle(.roundedBorder)
                     }
 
-                    GridRow {
-                        Text("Replace")
-                            .foregroundStyle(.secondary)
+                    BatchControlField("Replace") {
                         TextField("Replacement text", text: $operation.replacementText)
                             .textFieldStyle(.roundedBorder)
                     }
 
-                    GridRow {
-                        Text("")
-                        Toggle("Case sensitive", isOn: $operation.isCaseSensitive)
-                    }
+                    Toggle("Case sensitive", isOn: $operation.isCaseSensitive)
                 }
             case .addRemove:
-                Grid(alignment: .leading, horizontalSpacing: 10, verticalSpacing: 10) {
-                    GridRow {
-                        Text("Mode")
-                            .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 10) {
+                    BatchControlField("Mode") {
                         Picker("Mode", selection: $operation.affixMode) {
                             ForEach(BatchCaptionAffixMode.allCases) { mode in
                                 Text(mode.label).tag(mode)
@@ -160,40 +155,51 @@ private struct BatchCaptionOperationControls: View {
                         .pickerStyle(.segmented)
                     }
 
-                    GridRow {
-                        Text("Prefix")
-                            .foregroundStyle(.secondary)
+                    BatchControlField("Prefix") {
                         TextField("Text at the start", text: $operation.prefix)
                             .textFieldStyle(.roundedBorder)
                     }
 
-                    GridRow {
-                        Text("Suffix")
-                            .foregroundStyle(.secondary)
+                    BatchControlField("Suffix") {
                         TextField("Text at the end", text: $operation.suffix)
                             .textFieldStyle(.roundedBorder)
                     }
 
-                    GridRow {
-                        Text("Triggers")
-                            .foregroundStyle(.secondary)
+                    BatchControlField("Triggers") {
                         TextField("Comma-separated trigger words", text: $operation.triggerWords)
                             .textFieldStyle(.roundedBorder)
                     }
                 }
             case .normalizeTags:
-                HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 10) {
                     Toggle("Trim whitespace", isOn: $operation.trimsTagWhitespace)
 
                     Toggle("Remove duplicates", isOn: $operation.removesDuplicateTags)
 
                     Toggle("Sort alphabetically", isOn: $operation.sortsTags)
-
-                    Spacer()
                 }
             }
         }
         .font(.callout)
+    }
+}
+
+private struct BatchControlField<Content: View>: View {
+    let title: String
+    let content: Content
+
+    init(_ title: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .foregroundStyle(.secondary)
+
+            content
+        }
     }
 }
 

@@ -8,8 +8,8 @@ struct LabelSmithApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(dataset)
-                .frame(minWidth: 980, minHeight: 620)
         }
+        .windowResizability(.contentMinSize)
         .commands {
             CommandGroup(replacing: .newItem) {
                 Button("Open Folder...") {

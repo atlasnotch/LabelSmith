@@ -2,41 +2,24 @@ import SwiftUI
 
 struct DetailView: View {
     @EnvironmentObject private var dataset: DatasetViewModel
-    @Binding var isBatchToolsVisible: Bool
     var captionFocused: FocusState<Bool>.Binding
 
     var body: some View {
-        ZStack {
+        Group {
             if let item = dataset.selectedItem {
-                HSplitView {
-                    VStack(spacing: 0) {
-                        ImagePreview(url: item.imageURL)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color(nsColor: .windowBackgroundColor))
+                VStack(spacing: 0) {
+                    ImagePreview(url: item.imageURL)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(nsColor: .windowBackgroundColor))
 
-                        Divider()
+                    Divider()
 
-                        CaptionEditor(item: item, captionFocused: captionFocused)
-                            .environmentObject(dataset)
-                            .frame(height: 170)
-                    }
-                    .frame(minWidth: 460)
-
-                    if isBatchToolsVisible {
-                        BatchCaptionPane()
-                            .environmentObject(dataset)
-                            .frame(minWidth: 340, idealWidth: 380, maxWidth: 460, maxHeight: .infinity)
-                    }
+                    CaptionEditor(item: item, captionFocused: captionFocused)
+                        .environmentObject(dataset)
+                        .frame(height: 170)
                 }
             } else {
                 DropPrompt()
-            }
-
-            if dataset.isDropTargeted {
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 4, dash: [10, 8]))
-                    .padding(18)
-                    .allowsHitTesting(false)
             }
         }
     }

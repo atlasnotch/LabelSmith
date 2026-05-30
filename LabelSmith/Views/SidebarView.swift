@@ -138,12 +138,12 @@ private struct ManagedFolderRow: View {
                             .foregroundStyle(.tertiary)
                             .lineLimit(1)
                     }
-
-                    Spacer(minLength: 4)
+                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 }
             }
             .buttonStyle(.plain)
             .disabled(!folder.isAvailable)
+            .frame(minWidth: 0, maxWidth: .infinity)
 
             Button {
                 dataset.togglePinned(folder)
@@ -188,6 +188,7 @@ private struct DatasetRow: View {
                     .foregroundStyle(item.caption.isEmpty ? .secondary : .primary)
                     .lineLimit(1)
             }
+            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
 
             Spacer(minLength: 8)
 

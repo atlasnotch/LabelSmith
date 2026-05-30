@@ -2,21 +2,73 @@ import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 
+enum LayoutMetrics {
+    static let sidebarMinWidth: CGFloat = 220
+    static let sidebarIdealWidth: CGFloat = 300
+    static let sidebarMaxWidth: CGFloat = 380
+    static let detailMinWidth: CGFloat = 360
+    static let batchToolsMinWidth: CGFloat = 280
+    static let batchToolsIdealWidth: CGFloat = 340
+    static let batchToolsMaxWidth: CGFloat = 420
+    static let splitViewDividerWidth: CGFloat = 6
+    static let minimumContentHeight: CGFloat = 620
+
+    static func minimumContentWidth(includesBatchTools: Bool) -> CGFloat {
+        sidebarMinWidth
+            + detailMinWidth
+            + (includesBatchTools ? batchToolsMinWidth : 0)
+            + (includesBatchTools ? splitViewDividerWidth * 2 : splitViewDividerWidth)
+    }
+}
+
 struct ContentView: View {
     @EnvironmentObject private var dataset: DatasetViewModel
     @Environment(\.undoManager) private var undoManager
     @FocusState private var captionFocused: Bool
     @State private var isBatchToolsVisible = true
 
+    private var showsBatchToolsPane: Bool {
+        isBatchToolsVisible && dataset.selectedItem != nil
+    }
+
     var body: some View {
-        NavigationSplitView {
-            SidebarView()
-                .environmentObject(dataset)
-                .navigationSplitViewColumnWidth(min: 260, ideal: 320, max: 420)
-        } detail: {
-            DetailView(isBatchToolsVisible: $isBatchToolsVisible, captionFocused: $captionFocused)
-                .environmentObject(dataset)
+        ZStack {
+            HSplitView {
+                SidebarView()
+                    .environmentObject(dataset)
+                    .frame(
+                        minWidth: LayoutMetrics.sidebarMinWidth,
+                        idealWidth: LayoutMetrics.sidebarIdealWidth,
+                        maxWidth: LayoutMetrics.sidebarMaxWidth
+                    )
+
+                DetailView(captionFocused: $captionFocused)
+                    .environmentObject(dataset)
+                    .frame(minWidth: LayoutMetrics.detailMinWidth)
+
+                if showsBatchToolsPane {
+                    BatchCaptionPane()
+                        .environmentObject(dataset)
+                        .frame(
+                            minWidth: LayoutMetrics.batchToolsMinWidth,
+                            idealWidth: LayoutMetrics.batchToolsIdealWidth,
+                            maxWidth: LayoutMetrics.batchToolsMaxWidth,
+                            maxHeight: .infinity
+                        )
+                }
+            }
+
+            if dataset.isDropTargeted {
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 4, dash: [10, 8]))
+                    .padding(18)
+                    .allowsHitTesting(false)
+            }
         }
+        .frame(
+            minWidth: LayoutMetrics.minimumContentWidth(includesBatchTools: showsBatchToolsPane),
+            minHeight: LayoutMetrics.minimumContentHeight
+        )
         .toolbar {
             ToolbarItemGroup {
                 Button {
