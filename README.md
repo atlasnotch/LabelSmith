@@ -22,6 +22,57 @@ caption, and let LabelSmith save the matching `.txt` sidecar file for you.
 - Autosaves caption edits to sidecar `.txt` files.
 - Unit-tested scanner and caption persistence logic.
 
+## Roadmap / TODOs
+
+- Batch caption tools:
+  - Find and replace text across all captions or the current filtered result set.
+  - Add/remove prefixes, suffixes, and common trigger words in bulk.
+  - Normalize comma-separated tags by trimming whitespace, removing duplicates, and sorting or preserving order.
+  - Preview bulk edits before writing them to disk.
+
+- Review workflow:
+  - Add a reviewed/unreviewed state for each image.
+  - Provide shortcuts for next missing caption, next unreviewed image, and mark reviewed.
+  - Show review progress in the sidebar summary.
+  - Support quick actions such as copy previous caption and clear current caption.
+
+- Persistent workspace and folder management:
+  - Remember the last opened folder and restore it when the app launches.
+  - Support multiple recent or pinned dataset folders.
+  - Let users switch between managed folders without reopening them through Finder.
+  - Preserve per-folder UI state such as selected image, search text, filters, and review progress.
+  - Clearly handle missing, moved, or unavailable folders on launch.
+
+- Undo/history/backups:
+  - Add per-caption undo for recent edits.
+  - Keep a lightweight edit history during the current session.
+  - Create optional timestamped backups before bulk operations.
+  - Make failed saves and restore paths clear so captions are not silently lost.
+
+- Better image inspection:
+  - Add zoom, pan, fit-to-window, and actual-size controls.
+  - Show image dimensions, file size, and format metadata.
+  - Add keyboard shortcuts for zooming and switching inspection modes.
+  - Improve thumbnail and preview behavior for very large datasets.
+
+- Flexible dataset support:
+  - Add optional recursive folder scanning.
+  - Support additional image formats such as `.webp` where macOS can decode them.
+  - Offer dataset profiles, including strict Ostris sidecars and more permissive sidecar modes.
+  - Surface ignored files and folders so users understand what was skipped.
+
+- Connect auto-captioning with LMStudio:
+  - Add settings for a local LMStudio endpoint and model.
+  - Send the selected image, or a batch of missing-caption images, for caption generation.
+  - Let users review generated captions before saving them.
+  - Track generated captions separately from manually reviewed captions.
+
+- Stats/export:
+  - Show caption completion, missing-caption count, review progress, and tag frequency.
+  - Highlight duplicate captions, unusually short captions, and unusually long captions.
+  - Export dataset summaries to CSV or JSON.
+  - Export captions in additional training-friendly formats when useful.
+
 ## Dataset Format
 
 LabelSmith currently expects a flat folder:
