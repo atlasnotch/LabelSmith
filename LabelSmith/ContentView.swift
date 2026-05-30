@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 
 struct ContentView: View {
     @EnvironmentObject private var dataset: DatasetViewModel
+    @Environment(\.undoManager) private var undoManager
     @FocusState private var captionFocused: Bool
     @State private var isBatchEditorPresented = false
 
@@ -52,6 +53,7 @@ struct ContentView: View {
             handleDrop(providers)
         }
         .task {
+            dataset.setUndoManager(undoManager)
             dataset.restoreLastOpenedFolderIfNeeded()
         }
         .sheet(isPresented: $isBatchEditorPresented) {
@@ -321,6 +323,7 @@ private struct DetailView: View {
 
 private struct CaptionEditor: View {
     @EnvironmentObject private var dataset: DatasetViewModel
+    @State private var isClearConfirmationPresented = false
     let item: DatasetItem
     var captionFocused: FocusState<Bool>.Binding
 
@@ -343,12 +346,24 @@ private struct CaptionEditor: View {
                     .help("Copy Previous Caption")
 
                     Button {
-                        dataset.clearSelectedCaption()
+                        isClearConfirmationPresented = true
                     } label: {
                         Label("Clear Caption", systemImage: "xmark.circle")
                             .labelStyle(.iconOnly)
                     }
                     .help("Clear Caption")
+                    .confirmationDialog(
+                        "Clear caption?",
+                        isPresented: $isClearConfirmationPresented,
+                        titleVisibility: .visible
+                    ) {
+                        Button("Clear Caption", role: .destructive) {
+                            dataset.clearSelectedCaption()
+                        }
+                        Button("Cancel", role: .cancel) {}
+                    } message: {
+                        Text("This will clear the caption for \(item.filename).")
+                    }
 
                     Button {
                         dataset.toggleSelectedReviewed()

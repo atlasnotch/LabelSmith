@@ -27,6 +27,7 @@ final class DatasetViewModel: ObservableObject {
     private var workspaceSnapshot: WorkspaceSnapshot
     private var didAttemptInitialRestore = false
     private var isApplyingWorkspaceState = false
+    private weak var undoManager: UndoManager?
     private static let maximumRecentFolderCount = 12
 
     init(
@@ -79,6 +80,10 @@ final class DatasetViewModel: ObservableObject {
 
     func batchPreview(scope: BatchCaptionScope, operation: BatchCaptionOperation) -> BatchCaptionPreview {
         BatchCaptionEdit.preview(items: batchItems(for: scope), operation: operation)
+    }
+
+    func setUndoManager(_ undoManager: UndoManager?) {
+        self.undoManager = undoManager
     }
 
     func restoreLastOpenedFolderIfNeeded() {
@@ -161,10 +166,7 @@ final class DatasetViewModel: ObservableObject {
     }
 
     func updateCaption(for itemID: DatasetItem.ID, caption: String) {
-        guard let index = items.firstIndex(where: { $0.id == itemID }) else { return }
-        items[index].caption = caption
-        items[index].saveState = caption == items[index].originalCaption ? .clean : .dirty
-        scheduleAutosave(for: itemID)
+        setCaption(for: itemID, caption: caption, registersUndo: false)
     }
 
     func select(_ id: DatasetItem.ID?) {
@@ -189,12 +191,12 @@ final class DatasetViewModel: ObservableObject {
     }
 
     func markSelectedReviewed(_ isReviewed: Bool = true) {
-        guard let selectedID, let index = items.firstIndex(where: { $0.id == selectedID }) else { return }
-        items[index].isReviewed = isReviewed
-        saveCurrentWorkspaceState()
-        statusMessage = isReviewed
-            ? "Marked \(items[index].filename) reviewed."
-            : "Marked \(items[index].filename) unreviewed."
+        guard let selectedID else { return }
+        setReviewed(
+            for: selectedID,
+            isReviewed: isReviewed,
+            actionName: isReviewed ? "Mark Reviewed" : "Mark Unreviewed"
+        )
     }
 
     func toggleSelectedReviewed() {
@@ -214,13 +216,23 @@ final class DatasetViewModel: ObservableObject {
         }
 
         let previousCaption = visible[visible.index(before: visibleIndex)].caption
-        updateCaption(for: selectedID, caption: previousCaption)
+        setCaption(
+            for: selectedID,
+            caption: previousCaption,
+            registersUndo: true,
+            actionName: "Copy Previous Caption"
+        )
         statusMessage = "Copied previous caption to \(items[selectedIndex].filename)."
     }
 
     func clearSelectedCaption() {
         guard let selectedID, let index = items.firstIndex(where: { $0.id == selectedID }) else { return }
-        updateCaption(for: selectedID, caption: "")
+        setCaption(
+            for: selectedID,
+            caption: "",
+            registersUndo: true,
+            actionName: "Clear Caption"
+        )
         statusMessage = "Cleared caption for \(items[index].filename)."
     }
 
@@ -233,32 +245,15 @@ final class DatasetViewModel: ObservableObject {
         guard !changes.isEmpty else { return }
 
         autosaveTask?.cancel()
-        var savedCount = 0
-        var failedCount = 0
-
-        for change in changes {
-            guard let index = items.firstIndex(where: { $0.id == change.itemID }) else { continue }
-
-            items[index].caption = change.newCaption
-            items[index].saveState = .saving
-            let item = items[index]
-
-            do {
-                try captionStore.save(item.caption, for: item)
-                items[index].originalCaption = item.caption
-                items[index].saveState = .clean
-                savedCount += 1
-            } catch {
-                items[index].saveState = .failed(error.localizedDescription)
-                failedCount += 1
-            }
+        let replacements = changes.map {
+            CaptionReplacement(itemID: $0.itemID, caption: $0.newCaption)
         }
-
-        if failedCount > 0 {
-            statusMessage = "Saved \(savedCount) captions. \(failedCount) failed."
-        } else {
-            statusMessage = "Saved \(savedCount) batch caption edits."
-        }
+        applyCaptionReplacements(
+            replacements,
+            savesImmediately: true,
+            registersUndo: true,
+            actionName: "Batch Caption Edits"
+        )
     }
 
     private func saveCurrentWorkspaceState() {
@@ -272,6 +267,152 @@ final class DatasetViewModel: ObservableObject {
             reviewedItemIDs: Set(items.filter(\.isReviewed).map(\.id))
         )
         persistWorkspaceSnapshot()
+    }
+
+    private func setCaption(
+        for itemID: DatasetItem.ID,
+        caption: String,
+        registersUndo: Bool,
+        actionName: String? = nil
+    ) {
+        guard let index = items.firstIndex(where: { $0.id == itemID }) else { return }
+        let oldCaption = items[index].caption
+        guard oldCaption != caption else { return }
+
+        if registersUndo {
+            registerUndo(actionName: actionName) { target in
+                target.setCaption(
+                    for: itemID,
+                    caption: oldCaption,
+                    registersUndo: true,
+                    actionName: actionName
+                )
+            }
+        }
+
+        items[index].caption = caption
+        items[index].saveState = caption == items[index].originalCaption ? .clean : .dirty
+        scheduleAutosave(for: itemID)
+    }
+
+    private func setReviewed(
+        for itemID: DatasetItem.ID,
+        isReviewed: Bool,
+        registersUndo: Bool = true,
+        actionName: String? = nil
+    ) {
+        guard let index = items.firstIndex(where: { $0.id == itemID }) else { return }
+        let oldReviewed = items[index].isReviewed
+        guard oldReviewed != isReviewed else { return }
+
+        if registersUndo {
+            registerUndo(actionName: actionName) { target in
+                target.setReviewed(
+                    for: itemID,
+                    isReviewed: oldReviewed,
+                    registersUndo: true,
+                    actionName: actionName
+                )
+            }
+        }
+
+        items[index].isReviewed = isReviewed
+        saveCurrentWorkspaceState()
+        statusMessage = isReviewed
+            ? "Marked \(items[index].filename) reviewed."
+            : "Marked \(items[index].filename) unreviewed."
+    }
+
+    private struct CaptionReplacement {
+        let itemID: DatasetItem.ID
+        let caption: String
+    }
+
+    private func applyCaptionReplacements(
+        _ replacements: [CaptionReplacement],
+        savesImmediately: Bool,
+        registersUndo: Bool,
+        actionName: String
+    ) {
+        let validReplacements = replacements.compactMap { replacement -> CaptionReplacement? in
+            guard
+                let index = items.firstIndex(where: { $0.id == replacement.itemID }),
+                items[index].caption != replacement.caption
+            else {
+                return nil
+            }
+
+            return replacement
+        }
+        guard !validReplacements.isEmpty else { return }
+
+        if registersUndo {
+            let inverseReplacements = validReplacements.compactMap { replacement -> CaptionReplacement? in
+                guard let index = items.firstIndex(where: { $0.id == replacement.itemID }) else { return nil }
+                return CaptionReplacement(itemID: replacement.itemID, caption: items[index].caption)
+            }
+
+            registerUndo(actionName: actionName) { target in
+                target.applyCaptionReplacements(
+                    inverseReplacements,
+                    savesImmediately: savesImmediately,
+                    registersUndo: true,
+                    actionName: actionName
+                )
+            }
+        }
+
+        var savedCount = 0
+        var changedCount = 0
+        var failedCount = 0
+
+        for replacement in validReplacements {
+            guard let index = items.firstIndex(where: { $0.id == replacement.itemID }) else { continue }
+
+            items[index].caption = replacement.caption
+            items[index].saveState = replacement.caption == items[index].originalCaption ? .clean : .dirty
+            changedCount += 1
+
+            if savesImmediately {
+                items[index].saveState = .saving
+                let item = items[index]
+
+                do {
+                    try captionStore.save(item.caption, for: item)
+                    items[index].originalCaption = item.caption
+                    items[index].saveState = .clean
+                    savedCount += 1
+                } catch {
+                    items[index].saveState = .failed(error.localizedDescription)
+                    failedCount += 1
+                }
+            } else {
+                scheduleAutosave(for: replacement.itemID)
+            }
+        }
+
+        if savesImmediately {
+            statusMessage = failedCount > 0
+                ? "Saved \(savedCount) captions. \(failedCount) failed."
+                : "Saved \(savedCount) batch caption edits."
+        } else {
+            statusMessage = "Changed \(changedCount) captions."
+        }
+    }
+
+    private func registerUndo(
+        actionName: String?,
+        handler: @escaping @MainActor (DatasetViewModel) -> Void
+    ) {
+        undoManager?.registerUndo(withTarget: self) { target in
+            MainActor.assumeIsolated {
+                handler(target)
+            }
+        }
+
+        if let actionName {
+            undoManager?.setActionName(actionName)
+        }
     }
 
     private func applyWorkspaceState(for folderPath: String) {
