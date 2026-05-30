@@ -19,6 +19,7 @@
 		111111111111111111111110 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111008 /* Assets.xcassets */; };
 		111111111111111111111111 /* BatchCaptionEdit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111009 /* BatchCaptionEdit.swift */; };
 		111111111111111111111112 /* BatchCaptionEditTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111023 /* BatchCaptionEditTests.swift */; };
+		111111111111111111111113 /* DatasetViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111024 /* DatasetViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,7 @@
 		111111111111111111111021 /* DatasetScannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetScannerTests.swift; sourceTree = "<group>"; };
 		111111111111111111111022 /* CaptionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionStoreTests.swift; sourceTree = "<group>"; };
 		111111111111111111111023 /* BatchCaptionEditTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchCaptionEditTests.swift; sourceTree = "<group>"; };
+		111111111111111111111024 /* DatasetViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +113,7 @@
 				111111111111111111111021 /* DatasetScannerTests.swift */,
 				111111111111111111111022 /* CaptionStoreTests.swift */,
 				111111111111111111111023 /* BatchCaptionEditTests.swift */,
+				111111111111111111111024 /* DatasetViewModelTests.swift */,
 			);
 			path = LabelSmithTests;
 			sourceTree = "<group>";
@@ -240,6 +243,7 @@
 				111111111111111111111108 /* DatasetScannerTests.swift in Sources */,
 				111111111111111111111109 /* CaptionStoreTests.swift in Sources */,
 				111111111111111111111112 /* BatchCaptionEditTests.swift in Sources */,
+				111111111111111111111113 /* DatasetViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

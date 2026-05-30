@@ -21,16 +21,12 @@ caption, and let LabelSmith save the matching `.txt` sidecar file for you.
 - Missing-caption filter and dataset summary.
 - Batch caption tools with scoped find/replace, prefix/suffix and trigger-word edits,
   tag normalization, and live preview before saving.
+- Review workflow with reviewed/unreviewed state, progress summary, next-missing and
+  next-unreviewed navigation, and quick caption actions.
 - Autosaves caption edits to sidecar `.txt` files.
 - Unit-tested scanner, caption persistence, and batch edit logic.
 
 ## Roadmap / TODOs
-
-- Review workflow:
-  - Add a reviewed/unreviewed state for each image.
-  - Provide shortcuts for next missing caption, next unreviewed image, and mark reviewed.
-  - Show review progress in the sidebar summary.
-  - Support quick actions such as copy previous caption and clear current caption.
 
 - Persistent workspace and folder management:
   - Remember the last opened folder and restore it when the app launches.
@@ -158,3 +154,8 @@ Useful shortcuts:
 - `Command-O`: open a folder.
 - `Command-S`: save the current caption immediately.
 - `Up` / `Down`: move to the previous or next visible image.
+- `Command-Option-M`: jump to the next missing caption.
+- `Command-Option-U`: jump to the next unreviewed image.
+- `Command-Option-R`: mark the selected image reviewed.
+- `Command-Option-C`: copy the previous visible caption.
+- `Command-Option-Delete`: clear the selected caption.
