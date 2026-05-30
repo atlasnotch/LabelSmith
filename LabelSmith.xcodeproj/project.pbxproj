@@ -21,6 +21,15 @@
 		111111111111111111111112 /* BatchCaptionEditTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111023 /* BatchCaptionEditTests.swift */; };
 		111111111111111111111113 /* DatasetViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111024 /* DatasetViewModelTests.swift */; };
 		111111111111111111111114 /* WorkspaceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111010 /* WorkspaceStore.swift */; };
+		111111111111111111111115 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111025 /* SidebarView.swift */; };
+		111111111111111111111116 /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111026 /* DetailView.swift */; };
+		111111111111111111111117 /* BatchCaptionPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111027 /* BatchCaptionPane.swift */; };
+		111111111111111111111118 /* ImageViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111028 /* ImageViews.swift */; };
+		111111111111111111111119 /* StatusIndicators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111029 /* StatusIndicators.swift */; };
+		111111111111111111111120 /* DatasetNavigationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111030 /* DatasetNavigationModel.swift */; };
+		111111111111111111111121 /* CaptionEditingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111031 /* CaptionEditingModel.swift */; };
+		111111111111111111111122 /* WorkspaceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111032 /* WorkspaceCoordinator.swift */; };
+		111111111111111111111123 /* FolderOpening.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111033 /* FolderOpening.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +73,15 @@
 		111111111111111111111022 /* CaptionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionStoreTests.swift; sourceTree = "<group>"; };
 		111111111111111111111023 /* BatchCaptionEditTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchCaptionEditTests.swift; sourceTree = "<group>"; };
 		111111111111111111111024 /* DatasetViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetViewModelTests.swift; sourceTree = "<group>"; };
+		111111111111111111111025 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		111111111111111111111026 /* DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
+		111111111111111111111027 /* BatchCaptionPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchCaptionPane.swift; sourceTree = "<group>"; };
+		111111111111111111111028 /* ImageViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViews.swift; sourceTree = "<group>"; };
+		111111111111111111111029 /* StatusIndicators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusIndicators.swift; sourceTree = "<group>"; };
+		111111111111111111111030 /* DatasetNavigationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetNavigationModel.swift; sourceTree = "<group>"; };
+		111111111111111111111031 /* CaptionEditingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionEditingModel.swift; sourceTree = "<group>"; };
+		111111111111111111111032 /* WorkspaceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceCoordinator.swift; sourceTree = "<group>"; };
+		111111111111111111111033 /* FolderOpening.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderOpening.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +117,8 @@
 				111111111111111111111001 /* LabelSmithApp.swift */,
 				111111111111111111111002 /* ContentView.swift */,
 				111111111111111111111006 /* DatasetViewModel.swift */,
+				111111111111111111111705 /* Views */,
+				111111111111111111111706 /* ViewModels */,
 				111111111111111111111009 /* BatchCaptionEdit.swift */,
 				111111111111111111111010 /* WorkspaceStore.swift */,
 				111111111111111111111003 /* DatasetItem.swift */,
@@ -108,6 +128,29 @@
 				111111111111111111111007 /* Info.plist */,
 			);
 			path = LabelSmith;
+			sourceTree = "<group>";
+		};
+		111111111111111111111705 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				111111111111111111111025 /* SidebarView.swift */,
+				111111111111111111111026 /* DetailView.swift */,
+				111111111111111111111027 /* BatchCaptionPane.swift */,
+				111111111111111111111028 /* ImageViews.swift */,
+				111111111111111111111029 /* StatusIndicators.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		111111111111111111111706 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				111111111111111111111030 /* DatasetNavigationModel.swift */,
+				111111111111111111111031 /* CaptionEditingModel.swift */,
+				111111111111111111111032 /* WorkspaceCoordinator.swift */,
+				111111111111111111111033 /* FolderOpening.swift */,
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		111111111111111111111703 /* LabelSmithTests */ = {
@@ -235,6 +278,15 @@
 				111111111111111111111103 /* DatasetItem.swift in Sources */,
 				111111111111111111111111 /* BatchCaptionEdit.swift in Sources */,
 				111111111111111111111114 /* WorkspaceStore.swift in Sources */,
+				111111111111111111111115 /* SidebarView.swift in Sources */,
+				111111111111111111111116 /* DetailView.swift in Sources */,
+				111111111111111111111117 /* BatchCaptionPane.swift in Sources */,
+				111111111111111111111118 /* ImageViews.swift in Sources */,
+				111111111111111111111119 /* StatusIndicators.swift in Sources */,
+				111111111111111111111120 /* DatasetNavigationModel.swift in Sources */,
+				111111111111111111111121 /* CaptionEditingModel.swift in Sources */,
+				111111111111111111111122 /* WorkspaceCoordinator.swift in Sources */,
+				111111111111111111111123 /* FolderOpening.swift in Sources */,
 				111111111111111111111104 /* DatasetScanner.swift in Sources */,
 				111111111111111111111105 /* CaptionStore.swift in Sources */,
 			);
