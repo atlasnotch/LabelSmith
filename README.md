@@ -156,3 +156,8 @@ Useful shortcuts:
 - `Command-Option-R`: mark the selected image reviewed.
 - `Command-Option-C`: copy the previous visible caption.
 - `Command-Option-Delete`: clear the selected caption.
+
+## License
+
+LabelSmith is licensed under the [BSD Zero Clause License](LICENSE). Credit is
+appreciated, but not required.
