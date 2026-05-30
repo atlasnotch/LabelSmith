@@ -19,16 +19,12 @@ caption, and let LabelSmith save the matching `.txt` sidecar file for you.
 - Thumbnail/sidebar navigation.
 - Search across filenames and captions.
 - Missing-caption filter and dataset summary.
+- Batch caption tools with scoped find/replace, prefix/suffix and trigger-word edits,
+  tag normalization, and live preview before saving.
 - Autosaves caption edits to sidecar `.txt` files.
-- Unit-tested scanner and caption persistence logic.
+- Unit-tested scanner, caption persistence, and batch edit logic.
 
 ## Roadmap / TODOs
-
-- Batch caption tools:
-  - Find and replace text across all captions or the current filtered result set.
-  - Add/remove prefixes, suffixes, and common trigger words in bulk.
-  - Normalize comma-separated tags by trimming whitespace, removing duplicates, and sorting or preserving order.
-  - Preview bulk edits before writing them to disk.
 
 - Review workflow:
   - Add a reviewed/unreviewed state for each image.

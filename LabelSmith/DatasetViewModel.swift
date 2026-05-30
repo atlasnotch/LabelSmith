@@ -43,6 +43,10 @@ final class DatasetViewModel: ObservableObject {
         return "\(items.count) images, \(missing) missing captions"
     }
 
+    func batchPreview(scope: BatchCaptionScope, operation: BatchCaptionOperation) -> BatchCaptionPreview {
+        BatchCaptionEdit.preview(items: batchItems(for: scope), operation: operation)
+    }
+
     func presentOpenPanel() {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
@@ -104,6 +108,38 @@ final class DatasetViewModel: ObservableObject {
         saveCaption(for: selectedID)
     }
 
+    func applyBatchCaptionChanges(_ changes: [BatchCaptionPreviewChange]) {
+        guard !changes.isEmpty else { return }
+
+        autosaveTask?.cancel()
+        var savedCount = 0
+        var failedCount = 0
+
+        for change in changes {
+            guard let index = items.firstIndex(where: { $0.id == change.itemID }) else { continue }
+
+            items[index].caption = change.newCaption
+            items[index].saveState = .saving
+            let item = items[index]
+
+            do {
+                try captionStore.save(item.caption, for: item)
+                items[index].originalCaption = item.caption
+                items[index].saveState = .clean
+                savedCount += 1
+            } catch {
+                items[index].saveState = .failed(error.localizedDescription)
+                failedCount += 1
+            }
+        }
+
+        if failedCount > 0 {
+            statusMessage = "Saved \(savedCount) captions. \(failedCount) failed."
+        } else {
+            statusMessage = "Saved \(savedCount) batch caption edits."
+        }
+    }
+
     private func select(offset: Int) {
         let visible = filteredItems
         guard !visible.isEmpty else { return }
@@ -140,6 +176,15 @@ final class DatasetViewModel: ObservableObject {
         } catch {
             items[index].saveState = .failed(error.localizedDescription)
             statusMessage = "Could not save \(item.captionURL.lastPathComponent): \(error.localizedDescription)"
+        }
+    }
+
+    private func batchItems(for scope: BatchCaptionScope) -> [DatasetItem] {
+        switch scope {
+        case .filtered:
+            filteredItems
+        case .all:
+            items
         }
     }
 }

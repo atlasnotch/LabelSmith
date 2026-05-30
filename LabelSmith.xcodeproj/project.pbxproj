@@ -17,6 +17,8 @@
 		111111111111111111111108 /* DatasetScannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111021 /* DatasetScannerTests.swift */; };
 		111111111111111111111109 /* CaptionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111022 /* CaptionStoreTests.swift */; };
 		111111111111111111111110 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111008 /* Assets.xcassets */; };
+		111111111111111111111111 /* BatchCaptionEdit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111009 /* BatchCaptionEdit.swift */; };
+		111111111111111111111112 /* BatchCaptionEditTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111023 /* BatchCaptionEditTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,10 +54,12 @@
 		111111111111111111111006 /* DatasetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetViewModel.swift; sourceTree = "<group>"; };
 		111111111111111111111007 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		111111111111111111111008 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		111111111111111111111009 /* BatchCaptionEdit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchCaptionEdit.swift; sourceTree = "<group>"; };
 		111111111111111111111011 /* LabelSmith.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LabelSmith.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		111111111111111111111012 /* LabelSmithTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LabelSmithTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		111111111111111111111021 /* DatasetScannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetScannerTests.swift; sourceTree = "<group>"; };
 		111111111111111111111022 /* CaptionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionStoreTests.swift; sourceTree = "<group>"; };
+		111111111111111111111023 /* BatchCaptionEditTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchCaptionEditTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +95,7 @@
 				111111111111111111111001 /* LabelSmithApp.swift */,
 				111111111111111111111002 /* ContentView.swift */,
 				111111111111111111111006 /* DatasetViewModel.swift */,
+				111111111111111111111009 /* BatchCaptionEdit.swift */,
 				111111111111111111111003 /* DatasetItem.swift */,
 				111111111111111111111004 /* DatasetScanner.swift */,
 				111111111111111111111005 /* CaptionStore.swift */,
@@ -105,6 +110,7 @@
 			children = (
 				111111111111111111111021 /* DatasetScannerTests.swift */,
 				111111111111111111111022 /* CaptionStoreTests.swift */,
+				111111111111111111111023 /* BatchCaptionEditTests.swift */,
 			);
 			path = LabelSmithTests;
 			sourceTree = "<group>";
@@ -221,6 +227,7 @@
 				111111111111111111111102 /* ContentView.swift in Sources */,
 				111111111111111111111106 /* DatasetViewModel.swift in Sources */,
 				111111111111111111111103 /* DatasetItem.swift in Sources */,
+				111111111111111111111111 /* BatchCaptionEdit.swift in Sources */,
 				111111111111111111111104 /* DatasetScanner.swift in Sources */,
 				111111111111111111111105 /* CaptionStore.swift in Sources */,
 			);
@@ -232,6 +239,7 @@
 			files = (
 				111111111111111111111108 /* DatasetScannerTests.swift in Sources */,
 				111111111111111111111109 /* CaptionStoreTests.swift in Sources */,
+				111111111111111111111112 /* BatchCaptionEditTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

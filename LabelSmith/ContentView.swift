@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     @EnvironmentObject private var dataset: DatasetViewModel
     @FocusState private var captionFocused: Bool
+    @State private var isBatchEditorPresented = false
 
     var body: some View {
         NavigationSplitView {
@@ -37,10 +38,22 @@ struct ContentView: View {
                     Label("Next", systemImage: "chevron.down")
                 }
                 .help("Next Image")
+
+                Button {
+                    isBatchEditorPresented = true
+                } label: {
+                    Label("Batch Tools", systemImage: "slider.horizontal.3")
+                }
+                .disabled(dataset.items.isEmpty)
+                .help("Batch Caption Tools")
             }
         }
         .onDrop(of: [.fileURL], isTargeted: $dataset.isDropTargeted) { providers in
             handleDrop(providers)
+        }
+        .sheet(isPresented: $isBatchEditorPresented) {
+            BatchCaptionSheet()
+                .environmentObject(dataset)
         }
     }
 
@@ -214,6 +227,231 @@ private struct CaptionEditor: View {
             .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 6))
         }
         .padding(12)
+    }
+}
+
+private struct BatchCaptionSheet: View {
+    @EnvironmentObject private var dataset: DatasetViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var scope: BatchCaptionScope = .filtered
+    @State private var operation = BatchCaptionOperation()
+
+    private var preview: BatchCaptionPreview {
+        dataset.batchPreview(scope: scope, operation: operation)
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(spacing: 10) {
+                    Label("Batch Caption Tools", systemImage: "slider.horizontal.3")
+                        .font(.title3.weight(.semibold))
+
+                    Spacer()
+
+                    Text("\(preview.changedCount) of \(preview.targetCount) captions")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+
+                HStack(spacing: 12) {
+                    Picker("Scope", selection: $scope) {
+                        ForEach(BatchCaptionScope.allCases) { scope in
+                            Text(scope.label).tag(scope)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 220)
+
+                    Picker("Tool", selection: $operation.kind) {
+                        ForEach(BatchCaptionOperationKind.allCases) { kind in
+                            Text(kind.label).tag(kind)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(maxWidth: .infinity)
+                }
+
+                BatchCaptionOperationControls(operation: $operation)
+            }
+            .padding(18)
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("Preview")
+                        .font(.headline)
+
+                    Spacer()
+
+                    Text(operation.isReady ? "Ready to apply" : "Waiting for input")
+                        .font(.caption)
+                        .foregroundStyle(operation.isReady ? AnyShapeStyle(.secondary) : AnyShapeStyle(.orange))
+                }
+
+                if preview.changes.isEmpty {
+                    ContentUnavailableView(
+                        "No Caption Changes",
+                        systemImage: "checkmark.circle"
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    List(preview.changes) { change in
+                        BatchCaptionPreviewRow(change: change)
+                    }
+                    .listStyle(.inset)
+                }
+            }
+            .padding(18)
+            .frame(minHeight: 280)
+
+            Divider()
+
+            HStack {
+                Label("Edits are written only when applied.", systemImage: "eye")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                Button("Cancel") {
+                    dismiss()
+                }
+                .keyboardShortcut(.cancelAction)
+
+                Button("Apply") {
+                    dataset.applyBatchCaptionChanges(preview.changes)
+                    dismiss()
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(preview.changes.isEmpty)
+            }
+            .padding(18)
+        }
+        .frame(width: 760, height: 620)
+    }
+}
+
+private struct BatchCaptionOperationControls: View {
+    @Binding var operation: BatchCaptionOperation
+
+    var body: some View {
+        Group {
+            switch operation.kind {
+            case .findReplace:
+                Grid(alignment: .leading, horizontalSpacing: 10, verticalSpacing: 10) {
+                    GridRow {
+                        Text("Find")
+                            .foregroundStyle(.secondary)
+                        TextField("Text to find", text: $operation.findText)
+                            .textFieldStyle(.roundedBorder)
+                    }
+
+                    GridRow {
+                        Text("Replace")
+                            .foregroundStyle(.secondary)
+                        TextField("Replacement text", text: $operation.replacementText)
+                            .textFieldStyle(.roundedBorder)
+                    }
+
+                    GridRow {
+                        Text("")
+                        Toggle("Case sensitive", isOn: $operation.isCaseSensitive)
+                    }
+                }
+            case .addRemove:
+                Grid(alignment: .leading, horizontalSpacing: 10, verticalSpacing: 10) {
+                    GridRow {
+                        Text("Mode")
+                            .foregroundStyle(.secondary)
+                        Picker("Mode", selection: $operation.affixMode) {
+                            ForEach(BatchCaptionAffixMode.allCases) { mode in
+                                Text(mode.label).tag(mode)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                    }
+
+                    GridRow {
+                        Text("Prefix")
+                            .foregroundStyle(.secondary)
+                        TextField("Text at the start", text: $operation.prefix)
+                            .textFieldStyle(.roundedBorder)
+                    }
+
+                    GridRow {
+                        Text("Suffix")
+                            .foregroundStyle(.secondary)
+                        TextField("Text at the end", text: $operation.suffix)
+                            .textFieldStyle(.roundedBorder)
+                    }
+
+                    GridRow {
+                        Text("Triggers")
+                            .foregroundStyle(.secondary)
+                        TextField("Comma-separated trigger words", text: $operation.triggerWords)
+                            .textFieldStyle(.roundedBorder)
+                    }
+                }
+            case .normalizeTags:
+                HStack(spacing: 12) {
+                    Toggle("Trim whitespace", isOn: .constant(true))
+                        .disabled(true)
+
+                    Toggle("Remove duplicates", isOn: .constant(true))
+                        .disabled(true)
+
+                    Toggle("Sort alphabetically", isOn: $operation.sortsTags)
+
+                    Spacer()
+                }
+            }
+        }
+        .font(.callout)
+    }
+}
+
+private struct BatchCaptionPreviewRow: View {
+    let change: BatchCaptionPreviewChange
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(change.filename)
+                .font(.headline)
+                .lineLimit(1)
+
+            HStack(alignment: .top, spacing: 12) {
+                CaptionPreviewText(title: "Before", text: change.originalCaption)
+                Image(systemName: "arrow.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 22)
+                CaptionPreviewText(title: "After", text: change.newCaption)
+            }
+        }
+        .padding(.vertical, 6)
+    }
+}
+
+private struct CaptionPreviewText: View {
+    let title: String
+    let text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Text(text.isEmpty ? "Empty caption" : text)
+                .font(.system(.caption, design: .monospaced))
+                .foregroundStyle(text.isEmpty ? .secondary : .primary)
+                .lineLimit(3)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(8)
+                .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 6))
+        }
     }
 }
 
