@@ -32,6 +32,9 @@ struct SidebarView: View {
                 ForEach(dataset.filteredItems) { item in
                     DatasetRow(item: item)
                         .tag(item.id)
+                        .onTapGesture {
+                            dataset.select(item.id)
+                        }
                 }
             }
             .listStyle(.sidebar)
@@ -198,5 +201,6 @@ private struct DatasetRow: View {
             }
         }
         .padding(.vertical, 4)
+        .imageFileDragSource(item.imageURL)
     }
 }

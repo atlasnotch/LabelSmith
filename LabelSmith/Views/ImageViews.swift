@@ -1,6 +1,17 @@
 import AppKit
 import SwiftUI
 
+extension View {
+    func imageFileDragSource(_ url: URL) -> some View {
+        contentShape(Rectangle())
+            .onDrag {
+                let provider = NSItemProvider(contentsOf: url) ?? NSItemProvider(object: url as NSURL)
+                provider.suggestedName = url.lastPathComponent
+                return provider
+            }
+    }
+}
+
 struct ImagePreview: View {
     let url: URL
     @State private var image: NSImage?
@@ -19,6 +30,7 @@ struct ImagePreview: View {
         .task(id: url) {
             image = NSImage(contentsOf: url)
         }
+        .imageFileDragSource(url)
     }
 }
 
